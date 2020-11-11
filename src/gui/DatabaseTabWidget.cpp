@@ -677,12 +677,14 @@ void DatabaseTabWidget::unlockDatabaseInDialog(DatabaseWidget* dbWidget,
 
     m_databaseOpenDialog->show();
     m_databaseOpenDialog->raise();
-#ifdef Q_OS_WIN32
-    if (intent == DatabaseOpenDialog::Intent::AutoType || intent == DatabaseOpenDialog::Intent::Browser) {
-        Tools::wait(1000);
-    }
-#endif
     m_databaseOpenDialog->activateWindow();
+
+    // Workaround for https://github.com/keepassxreboot/keepassxc/issues/5390
+    // If the window didn't activate because it wasn't available yet, wait 200ms then retry.
+    if (!m_databaseOpenDialog->isActiveWindow()) {
+        Tools::wait(200);
+        m_databaseOpenDialog->activateWindow();
+    }
 }
 
 /**
